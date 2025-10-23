@@ -1,6 +1,7 @@
 package goenvconf
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,6 +10,9 @@ import (
 const (
 	keyValueLength = 2
 )
+
+// ErrParseStringFailed is the error when failed to parse a string to another type.
+var ErrParseStringFailed = errors.New("ParseStringFailed")
 
 // ParseStringMapFromString parses a string map from a string with format:
 //
@@ -19,14 +23,15 @@ func ParseStringMapFromString(input string) (map[string]string, error) {
 		return result, nil
 	}
 
-	rawItems := strings.Split(input, ";")
+	rawItems := strings.SplitSeq(input, ";")
 
-	for _, rawItem := range rawItems {
+	for rawItem := range rawItems {
 		keyValue := strings.Split(rawItem, "=")
 
 		if len(keyValue) != keyValueLength {
 			return nil, fmt.Errorf(
-				"invalid int map string %s, expected <key1>=<value1>;<key2>=<value2>",
+				"%w: invalid int map from string, expected: <key1>=<value1>;<key2>=<value2>, got: %s",
+				ErrParseStringFailed,
 				input,
 			)
 		}
@@ -58,12 +63,17 @@ func ParseIntegerMapFromString[T int | int8 | int16 | int32 | int64 | uint | uin
 	result := make(map[string]T)
 
 	for key, value := range rawValues {
-		v, err := strconv.ParseInt(value, 10, 64)
+		intValue, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid integer value %s in item %s", value, key)
+			return nil, fmt.Errorf(
+				"%w: invalid integer value %s in item %s",
+				ErrParseStringFailed,
+				value,
+				key,
+			)
 		}
 
-		result[key] = T(v)
+		result[key] = T(intValue)
 	}
 
 	return result, nil
@@ -81,12 +91,17 @@ func ParseFloatMapFromString[T float32 | float64](input string) (map[string]T, e
 	result := make(map[string]T)
 
 	for key, value := range rawValues {
-		v, err := strconv.ParseFloat(value, 64)
+		floatValue, err := strconv.ParseFloat(value, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid float value %s in item %s", value, key)
+			return nil, fmt.Errorf(
+				"%w: invalid float value %s in item %s",
+				ErrParseStringFailed,
+				value,
+				key,
+			)
 		}
 
-		result[key] = T(v)
+		result[key] = T(floatValue)
 	}
 
 	return result, nil
@@ -104,12 +119,17 @@ func ParseBoolMapFromString(input string) (map[string]bool, error) {
 	result := make(map[string]bool)
 
 	for key, value := range rawValues {
-		v, err := strconv.ParseBool(value)
+		boolValue, err := strconv.ParseBool(value)
 		if err != nil {
-			return nil, fmt.Errorf("invalid bool value %s in item %s", value, key)
+			return nil, fmt.Errorf(
+				"%w: invalid bool value %s in item %s",
+				ErrParseStringFailed,
+				value,
+				key,
+			)
 		}
 
-		result[key] = v
+		result[key] = boolValue
 	}
 
 	return result, nil

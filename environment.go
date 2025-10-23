@@ -1,3 +1,4 @@
+// Package goenvconf contains reusable structures and utilities for configuration with environment variables.
 package goenvconf
 
 import (
@@ -47,11 +48,14 @@ func (ev *EnvString) UnmarshalJSON(b []byte) error {
 	type Plain EnvString
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentValue(rawValue.Value, rawValue.Variable); err != nil {
+	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvString: %w", err)
 	}
 
@@ -62,7 +66,8 @@ func (ev *EnvString) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvString) Get() (string, error) {
-	if err := validateEnvironmentValue(ev.Value, ev.Variable); err != nil {
+	err := validateEnvironmentValue(ev.Value, ev.Variable)
+	if err != nil {
 		return "", err
 	}
 
@@ -136,11 +141,14 @@ func (ev *EnvInt) UnmarshalJSON(b []byte) error {
 	type Plain EnvInt
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentValue(rawValue.Value, rawValue.Variable); err != nil {
+	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvInt: %w", err)
 	}
 
@@ -151,7 +159,8 @@ func (ev *EnvInt) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvInt) Get() (int64, error) {
-	if err := validateEnvironmentValue(ev.Value, ev.Variable); err != nil {
+	err := validateEnvironmentValue(ev.Value, ev.Variable)
+	if err != nil {
 		return 0, err
 	}
 
@@ -216,11 +225,14 @@ func (ev *EnvBool) UnmarshalJSON(b []byte) error {
 	type Plain EnvBool
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentValue(rawValue.Value, rawValue.Variable); err != nil {
+	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvBool: %w", err)
 	}
 
@@ -231,7 +243,8 @@ func (ev *EnvBool) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvBool) Get() (bool, error) {
-	if err := validateEnvironmentValue(ev.Value, ev.Variable); err != nil {
+	err := validateEnvironmentValue(ev.Value, ev.Variable)
+	if err != nil {
 		return false, err
 	}
 
@@ -296,11 +309,14 @@ func (ev *EnvFloat) UnmarshalJSON(b []byte) error {
 	type Plain EnvFloat
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentValue(rawValue.Value, rawValue.Variable); err != nil {
+	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvFloat: %w", err)
 	}
 
@@ -311,7 +327,8 @@ func (ev *EnvFloat) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvFloat) Get() (float64, error) {
-	if err := validateEnvironmentValue(ev.Value, ev.Variable); err != nil {
+	err := validateEnvironmentValue(ev.Value, ev.Variable)
+	if err != nil {
 		return 0, err
 	}
 
@@ -376,11 +393,14 @@ func (ev *EnvMapString) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapString
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentMapValue(rawValue.Variable); err != nil {
+	err = validateEnvironmentMapValue(rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvMapString: %w", err)
 	}
 
@@ -391,7 +411,8 @@ func (ev *EnvMapString) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvMapString) Get() (map[string]string, error) {
-	if err := validateEnvironmentMapValue(ev.Variable); err != nil {
+	err := validateEnvironmentMapValue(ev.Variable)
+	if err != nil {
 		return nil, err
 	}
 
@@ -438,11 +459,14 @@ func (ev *EnvMapInt) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapInt
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentMapValue(rawValue.Variable); err != nil {
+	err = validateEnvironmentMapValue(rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvMapInt: %w", err)
 	}
 
@@ -453,7 +477,8 @@ func (ev *EnvMapInt) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvMapInt) Get() (map[string]int64, error) {
-	if err := validateEnvironmentMapValue(ev.Variable); err != nil {
+	err := validateEnvironmentMapValue(ev.Variable)
+	if err != nil {
 		return nil, err
 	}
 
@@ -500,11 +525,14 @@ func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapFloat
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentMapValue(rawValue.Variable); err != nil {
+	err = validateEnvironmentMapValue(rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvMapFloat: %w", err)
 	}
 
@@ -515,7 +543,8 @@ func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvMapFloat) Get() (map[string]float64, error) {
-	if err := validateEnvironmentMapValue(ev.Variable); err != nil {
+	err := validateEnvironmentMapValue(ev.Variable)
+	if err != nil {
 		return nil, err
 	}
 
@@ -562,11 +591,14 @@ func (ev *EnvMapBool) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapBool
 
 	var rawValue Plain
-	if err := json.Unmarshal(b, &rawValue); err != nil {
+
+	err := json.Unmarshal(b, &rawValue)
+	if err != nil {
 		return err
 	}
 
-	if err := validateEnvironmentMapValue(rawValue.Variable); err != nil {
+	err = validateEnvironmentMapValue(rawValue.Variable)
+	if err != nil {
 		return fmt.Errorf("EnvMapBool: %w", err)
 	}
 
@@ -577,7 +609,8 @@ func (ev *EnvMapBool) UnmarshalJSON(b []byte) error {
 
 // Get gets literal value or from system environment.
 func (ev EnvMapBool) Get() (map[string]bool, error) {
-	if err := validateEnvironmentMapValue(ev.Variable); err != nil {
+	err := validateEnvironmentMapValue(ev.Variable)
+	if err != nil {
 		return nil, err
 	}
 
