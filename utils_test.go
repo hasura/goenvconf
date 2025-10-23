@@ -23,7 +23,7 @@ func TestParseIntMapFromString(t *testing.T) {
 		},
 		{
 			Input:    "a;b=2",
-			ErrorMsg: "invalid int map string a;b=2, expected <key1>=<value1>;<key2>=<value2>",
+			ErrorMsg: "ParseStringFailed: invalid int map from string, expected: <key1>=<value1>;<key2>=<value2>, got: a;b=2",
 		},
 		{
 			Input:    "a=c;b=2",
