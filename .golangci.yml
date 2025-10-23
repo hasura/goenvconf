@@ -2,22 +2,8 @@ version: "2"
 
 linters:
   default: all
-  enable:
-    - wsl_v5
   disable:
-  #   - err113
-  #   - lll
-  #   - depguard
-  #   - wrapcheck
-  #   - varnamelen
     - exhaustruct
-  #   - ireturn
-  #   - gochecknoglobals
-  #   - nilnil
-  #   - mnd
-  #   - recvcheck
-  #   - funcorder
-  #   - noinlineerr
     - wrapcheck
     - wsl
   settings:
