@@ -10,9 +10,11 @@ import (
 )
 
 var (
-	errEnvironmentValueRequired         = errors.New("require either value or env")
-	errEnvironmentVariableRequired      = errors.New("the environment variable name is empty")
-	errEnvironmentVariableValueRequired = errors.New("the environment variable value is empty")
+	errEnvironmentValueRequired = errors.New("require either value or env")
+	// ErrEnvironmentVariableRequired the error happens when the name of environment variable is empty.
+	ErrEnvironmentVariableRequired = errors.New("the environment variable name is empty")
+	// ErrEnvironmentVariableValueRequired the error happens when the value from environment variable is empty.
+	ErrEnvironmentVariableValueRequired = errors.New("the environment variable value is empty")
 )
 
 // EnvString represents either a literal string or an environment reference.
@@ -96,7 +98,7 @@ func (ev EnvString) Get() (string, error) {
 func (ev EnvString) GetOrDefault(defaultValue string) (string, error) {
 	result, err := ev.Get()
 	if err != nil {
-		if errors.Is(err, errEnvironmentVariableValueRequired) {
+		if errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return defaultValue, nil
 		}
 
@@ -182,7 +184,7 @@ func (ev EnvInt) Get() (int64, error) {
 func (ev EnvInt) GetOrDefault(defaultValue int64) (int64, error) {
 	result, err := ev.Get()
 	if err != nil {
-		if errors.Is(err, errEnvironmentVariableValueRequired) {
+		if errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return defaultValue, nil
 		}
 
@@ -266,7 +268,7 @@ func (ev EnvBool) Get() (bool, error) {
 func (ev EnvBool) GetOrDefault(defaultValue bool) (bool, error) {
 	result, err := ev.Get()
 	if err != nil {
-		if errors.Is(err, errEnvironmentVariableValueRequired) {
+		if errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return defaultValue, nil
 		}
 
@@ -350,7 +352,7 @@ func (ev EnvFloat) Get() (float64, error) {
 func (ev EnvFloat) GetOrDefault(defaultValue float64) (float64, error) {
 	result, err := ev.Get()
 	if err != nil {
-		if errors.Is(err, errEnvironmentVariableValueRequired) {
+		if errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return defaultValue, nil
 		}
 
@@ -626,8 +628,8 @@ func (ev EnvMapBool) Get() (map[string]bool, error) {
 
 func getEnvVariableValueRequiredError(envName *string) error {
 	if envName != nil {
-		return fmt.Errorf("%s: %w", *envName, errEnvironmentVariableValueRequired)
+		return fmt.Errorf("%s: %w", *envName, ErrEnvironmentVariableValueRequired)
 	}
 
-	return errEnvironmentVariableValueRequired
+	return ErrEnvironmentVariableValueRequired
 }

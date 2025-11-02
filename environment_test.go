@@ -35,7 +35,7 @@ func TestEnvString(t *testing.T) {
 			Input: EnvString{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -97,7 +97,7 @@ func TestEnvBool(t *testing.T) {
 			Input: EnvBool{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -106,7 +106,7 @@ func TestEnvBool(t *testing.T) {
 			result, err := tc.Input.Get()
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
-				if tc.ErrorMsg == errEnvironmentVariableValueRequired.Error() {
+				if tc.ErrorMsg == ErrEnvironmentVariableValueRequired.Error() {
 					newValue, err := tc.Input.GetOrDefault(true)
 					assertNilError(t, err)
 					assertDeepEqual(t, newValue, true)
@@ -154,7 +154,7 @@ func TestEnvInt(t *testing.T) {
 		},
 		{
 			Input:    NewEnvIntVariable("SOME_FOO_2"),
-			ErrorMsg: errEnvironmentVariableValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
 		},
 		{
 			Input:    EnvInt{},
@@ -168,7 +168,7 @@ func TestEnvInt(t *testing.T) {
 			Input: EnvInt{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -177,7 +177,7 @@ func TestEnvInt(t *testing.T) {
 			result, err := tc.Input.Get()
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
-				if tc.ErrorMsg == errEnvironmentVariableValueRequired.Error() {
+				if tc.ErrorMsg == ErrEnvironmentVariableValueRequired.Error() {
 					newValue, err := tc.Input.GetOrDefault(100)
 					assertNilError(t, err)
 					assertDeepEqual(t, newValue, int64(100))
@@ -219,7 +219,7 @@ func TestEnvFloat(t *testing.T) {
 		},
 		{
 			Input:    NewEnvFloatVariable("SOME_FOO_2"),
-			ErrorMsg: errEnvironmentVariableValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
 		},
 		{
 			Input:    EnvFloat{},
@@ -233,7 +233,7 @@ func TestEnvFloat(t *testing.T) {
 			Input: EnvFloat{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -242,7 +242,7 @@ func TestEnvFloat(t *testing.T) {
 			result, err := tc.Input.Get()
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
-				if tc.ErrorMsg == errEnvironmentVariableValueRequired.Error() {
+				if tc.ErrorMsg == ErrEnvironmentVariableValueRequired.Error() {
 					newValue, err := tc.Input.GetOrDefault(100.5)
 					assertNilError(t, err)
 					assertDeepEqual(t, newValue, float64(100.5))
@@ -301,7 +301,7 @@ func TestEnvMapBool(t *testing.T) {
 			Input: EnvMapBool{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -363,7 +363,7 @@ func TestEnvMapInt(t *testing.T) {
 			Input: EnvMapInt{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -425,7 +425,7 @@ func TestEnvMapFloat(t *testing.T) {
 			Input: EnvMapFloat{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -488,7 +488,7 @@ func TestEnvMapString(t *testing.T) {
 			Input: EnvMapString{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: errEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
