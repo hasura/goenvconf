@@ -141,7 +141,7 @@ func validateEnvironmentValue[T any](value *T, variable *string) error {
 	}
 
 	if variable != nil && *variable == "" {
-		return errEnvironmentVariableRequired
+		return ErrEnvironmentVariableRequired
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func validateEnvironmentValue[T any](value *T, variable *string) error {
 
 func validateEnvironmentMapValue(variable *string) error {
 	if variable != nil && *variable == "" {
-		return errEnvironmentVariableRequired
+		return ErrEnvironmentVariableRequired
 	}
 
 	return nil
