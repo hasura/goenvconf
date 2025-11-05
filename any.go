@@ -55,6 +55,12 @@ func (ev *EnvAny) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// IsZero checks if the instance is empty.
+func (ev EnvAny) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
+}
+
 // Get gets literal value or from system environment.
 func (ev EnvAny) Get() (any, error) {
 	if ev.Variable != nil {

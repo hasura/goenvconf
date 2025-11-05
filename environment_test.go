@@ -47,6 +47,7 @@ func TestEnvString(t *testing.T) {
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), false)
 			}
 		})
 	}
@@ -118,6 +119,7 @@ func TestEnvBool(t *testing.T) {
 				newValue, err := tc.Input.GetOrDefault(true)
 				assertNilError(t, err)
 				assertDeepEqual(t, newValue, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), false)
 			}
 		})
 	}
@@ -134,6 +136,8 @@ func TestEnvBool(t *testing.T) {
 		result, err := NewEnvBoolVariable("SOME_TRUE").GetOrDefault(true)
 		assertNilError(t, err)
 		assertDeepEqual(t, true, result)
+
+		assertDeepEqual(t, EnvBool{}.IsZero(), true)
 	})
 }
 
@@ -182,6 +186,7 @@ func TestEnvInt(t *testing.T) {
 					assertNilError(t, err)
 					assertDeepEqual(t, newValue, int64(100))
 				}
+
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
@@ -189,6 +194,8 @@ func TestEnvInt(t *testing.T) {
 				newValue, err := tc.Input.GetOrDefault(100)
 				assertNilError(t, err)
 				assertDeepEqual(t, newValue, tc.Expected)
+
+				assertDeepEqual(t, tc.Input.IsZero(), false)
 			}
 		})
 	}
@@ -254,6 +261,7 @@ func TestEnvFloat(t *testing.T) {
 				newValue, err := tc.Input.GetOrDefault(100)
 				assertNilError(t, err)
 				assertDeepEqual(t, newValue, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), false)
 			}
 		})
 	}
@@ -313,6 +321,7 @@ func TestEnvMapBool(t *testing.T) {
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 			}
 		})
 	}
@@ -375,6 +384,7 @@ func TestEnvMapInt(t *testing.T) {
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 			}
 		})
 	}
@@ -437,6 +447,7 @@ func TestEnvMapFloat(t *testing.T) {
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 			}
 		})
 	}
@@ -500,6 +511,7 @@ func TestEnvMapString(t *testing.T) {
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
+				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 			}
 		})
 	}
