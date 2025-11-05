@@ -9,14 +9,6 @@ import (
 	"strconv"
 )
 
-var (
-	errEnvironmentValueRequired = errors.New("require either value or env")
-	// ErrEnvironmentVariableRequired the error happens when the name of environment variable is empty.
-	ErrEnvironmentVariableRequired = errors.New("the environment variable name is empty")
-	// ErrEnvironmentVariableValueRequired the error happens when the value from environment variable is empty.
-	ErrEnvironmentVariableValueRequired = errors.New("the environment variable value is empty")
-)
-
 // EnvString represents either a literal string or an environment reference.
 type EnvString struct {
 	Value    *string `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
@@ -64,6 +56,12 @@ func (ev *EnvString) UnmarshalJSON(b []byte) error {
 	*ev = EnvString(rawValue)
 
 	return nil
+}
+
+// IsZero checks if the instance is empty.
+func (ev EnvString) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
 }
 
 // Get gets literal value or from system environment.
@@ -136,6 +134,12 @@ func NewEnvIntVariable(name string) EnvInt {
 	return EnvInt{
 		Variable: &name,
 	}
+}
+
+// IsZero checks if the instance is empty.
+func (ev EnvInt) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -222,6 +226,12 @@ func NewEnvBoolVariable(name string) EnvBool {
 	}
 }
 
+// IsZero checks if the instance is empty.
+func (ev EnvBool) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvBool) UnmarshalJSON(b []byte) error {
 	type Plain EnvBool
@@ -304,6 +314,12 @@ func NewEnvFloatVariable(name string) EnvFloat {
 	return EnvFloat{
 		Variable: &name,
 	}
+}
+
+// IsZero checks if the instance is empty.
+func (ev EnvFloat) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -390,6 +406,12 @@ func NewEnvMapStringVariable(name string) EnvMapString {
 	}
 }
 
+// IsZero checks if the instance is empty.
+func (ev EnvMapString) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvMapString) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapString
@@ -454,6 +476,12 @@ func NewEnvMapIntVariable(name string) EnvMapInt {
 	return EnvMapInt{
 		Variable: &name,
 	}
+}
+
+// IsZero checks if the instance is empty.
+func (ev EnvMapInt) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -522,6 +550,12 @@ func NewEnvMapFloatVariable(name string) EnvMapFloat {
 	}
 }
 
+// IsZero checks if the instance is empty.
+func (ev EnvMapFloat) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapFloat
@@ -588,6 +622,12 @@ func NewEnvMapBoolVariable(name string) EnvMapBool {
 	}
 }
 
+// IsZero checks if the instance is empty.
+func (ev EnvMapBool) IsZero() bool {
+	return (ev.Variable == nil || *ev.Variable == "") &&
+		ev.Value == nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvMapBool) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapBool
@@ -624,12 +664,4 @@ func (ev EnvMapBool) Get() (map[string]bool, error) {
 	}
 
 	return ev.Value, nil
-}
-
-func getEnvVariableValueRequiredError(envName *string) error {
-	if envName != nil {
-		return fmt.Errorf("%s: %w", *envName, ErrEnvironmentVariableValueRequired)
-	}
-
-	return ErrEnvironmentVariableValueRequired
 }

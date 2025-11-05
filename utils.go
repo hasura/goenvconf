@@ -11,8 +11,15 @@ const (
 	keyValueLength = 2
 )
 
-// ErrParseStringFailed is the error when failed to parse a string to another type.
-var ErrParseStringFailed = errors.New("ParseStringFailed")
+var (
+	errEnvironmentValueRequired = errors.New("require either value or env")
+	// ErrEnvironmentVariableRequired the error happens when the name of environment variable is empty.
+	ErrEnvironmentVariableRequired = errors.New("the environment variable name is empty")
+	// ErrEnvironmentVariableValueRequired the error happens when the value from environment variable is empty.
+	ErrEnvironmentVariableValueRequired = errors.New("the environment variable value is empty")
+	// ErrParseStringFailed is the error when failed to parse a string to another type.
+	ErrParseStringFailed = errors.New("ParseStringFailed")
+)
 
 // ParseStringMapFromString parses a string map from a string with format:
 //
@@ -153,4 +160,12 @@ func validateEnvironmentMapValue(variable *string) error {
 	}
 
 	return nil
+}
+
+func getEnvVariableValueRequiredError(envName *string) error {
+	if envName != nil {
+		return fmt.Errorf("%s: %w", *envName, ErrEnvironmentVariableValueRequired)
+	}
+
+	return ErrEnvironmentVariableValueRequired
 }

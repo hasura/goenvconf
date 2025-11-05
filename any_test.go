@@ -45,12 +45,15 @@ func TestEnvAny(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			result, err := tc.Input.Get()
+
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
 			} else {
 				assertNilError(t, err)
 				assertDeepEqual(t, result, tc.Expected)
 			}
+
+			assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 		})
 	}
 
