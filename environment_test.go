@@ -2,6 +2,7 @@ package goenvconf
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -25,7 +26,7 @@ func TestEnvString(t *testing.T) {
 		},
 		{
 			Input:    EnvString{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvString("SOME_BAR", "bar"),
@@ -35,7 +36,7 @@ func TestEnvString(t *testing.T) {
 			Input: EnvString{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -88,7 +89,7 @@ func TestEnvBool(t *testing.T) {
 		},
 		{
 			Input:    EnvBool{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvBool("SOME_FOO_2", true),
@@ -98,7 +99,7 @@ func TestEnvBool(t *testing.T) {
 			Input: EnvBool{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -162,7 +163,7 @@ func TestEnvInt(t *testing.T) {
 		},
 		{
 			Input:    EnvInt{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvInt("SOME_FOO_2", 10),
@@ -172,7 +173,7 @@ func TestEnvInt(t *testing.T) {
 			Input: EnvInt{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -230,7 +231,7 @@ func TestEnvFloat(t *testing.T) {
 		},
 		{
 			Input:    EnvFloat{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvFloat("SOME_FOO_1", 10),
@@ -240,7 +241,7 @@ func TestEnvFloat(t *testing.T) {
 			Input: EnvFloat{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -275,257 +276,313 @@ func TestEnvFloat(t *testing.T) {
 	})
 }
 
-func TestEnvMapBool(t *testing.T) {
-	t.Setenv("SOME_FOO", "foo=true;bar=false")
-	testCases := []struct {
-		Input    EnvMapBool
-		Expected map[string]bool
-		ErrorMsg string
-	}{
-		{
-			Input: NewEnvMapBoolValue(map[string]bool{
-				"foo": true,
-			}),
-			Expected: map[string]bool{
-				"foo": true,
-			},
-		},
-		{
-			Input: NewEnvMapBoolVariable("SOME_FOO"),
-			Expected: map[string]bool{
-				"foo": true,
-				"bar": false,
-			},
-		},
-		{
-			Input:    EnvMapBool{},
-			Expected: nil,
-		},
-		{
-			Input:    NewEnvMapBool("SOME_FOO_2", map[string]bool{}),
-			Expected: map[string]bool{},
-		},
-		{
-			Input: EnvMapBool{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
-		},
+// mockGetEnvFunc creates a mock GetEnvFunc that returns predefined values
+func mockGetEnvFunc(values map[string]string, returnError bool) GetEnvFunc {
+	return func(key string) (string, error) {
+		if returnError {
+			return "", errors.New("mock error: failed to get environment variable")
+		}
+		if val, ok := values[key]; ok {
+			return val, nil
+		}
+		return "", nil
 	}
-
-	for i, tc := range testCases {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			result, err := tc.Input.Get()
-			if tc.ErrorMsg != "" {
-				assertErrorContains(t, err, tc.ErrorMsg)
-			} else {
-				assertNilError(t, err)
-				assertDeepEqual(t, result, tc.Expected)
-				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
-			}
-		})
-	}
-
-	t.Run("json_decode", func(t *testing.T) {
-		var ev EnvMapBool
-		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-		result, err := ev.Get()
-		assertNilError(t, err)
-		assertDeepEqual(t, map[string]bool{
-			"foo": true,
-			"bar": false,
-		}, result)
-	})
 }
 
-func TestEnvMapInt(t *testing.T) {
-	t.Setenv("SOME_FOO", "foo=2;bar=3")
+func TestEnvString_GetCustom(t *testing.T) {
 	testCases := []struct {
-		Input    EnvMapInt
-		Expected map[string]int64
+		Name     string
+		Input    EnvString
+		GetFunc  GetEnvFunc
+		Expected string
 		ErrorMsg string
 	}{
 		{
-			Input: NewEnvMapIntValue(map[string]int64{
-				"foo": 1,
-			}),
-			Expected: map[string]int64{
-				"foo": 1,
-			},
+			Name:     "literal_value",
+			Input:    NewEnvStringValue("foo"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: "foo",
 		},
 		{
-			Input: NewEnvMapIntVariable("SOME_FOO"),
-			Expected: map[string]int64{
-				"foo": 2,
-				"bar": 3,
-			},
+			Name:     "variable_from_custom_func",
+			Input:    NewEnvStringVariable("CUSTOM_VAR"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_VAR": "bar"}, false),
+			Expected: "bar",
 		},
 		{
-			Input:    EnvMapInt{},
-			Expected: nil,
+			Name:     "variable_with_fallback_value",
+			Input:    NewEnvString("CUSTOM_VAR", "fallback"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_VAR": "custom"}, false),
+			Expected: "custom",
 		},
 		{
-			Input:    NewEnvMapInt("SOME_FOO_2", map[string]int64{}),
-			Expected: map[string]int64{},
+			Name:     "empty_variable_returns_empty_string",
+			Input:    NewEnvString("EMPTY_VAR", "fallback"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"EMPTY_VAR": ""}, false),
+			Expected: "",
 		},
 		{
-			Input: EnvMapInt{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			Name:     "zero_value_error",
+			Input:    EnvString{},
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
+		},
+		{
+			Name:     "custom_func_error",
+			Input:    NewEnvStringVariable("SOME_VAR"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, true),
+			ErrorMsg: "mock error",
+		},
+		{
+			Name:     "missing_variable_returns_empty_string",
+			Input:    NewEnvStringVariable("MISSING_VAR"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: "",
+		},
+		{
+			Name:     "only_value_no_variable",
+			Input:    NewEnvStringValue("only_value"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: "only_value",
 		},
 	}
 
-	for i, tc := range testCases {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			result, err := tc.Input.Get()
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			result, err := tc.Input.GetCustom(tc.GetFunc)
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
 			} else {
 				assertNilError(t, err)
-				assertDeepEqual(t, result, tc.Expected)
-				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
+				assertDeepEqual(t, tc.Expected, result)
 			}
 		})
 	}
-
-	t.Run("json_decode", func(t *testing.T) {
-		var ev EnvMapInt
-		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-		result, err := ev.Get()
-		assertNilError(t, err)
-		assertDeepEqual(t, map[string]int64{
-			"foo": 2,
-			"bar": 3,
-		}, result)
-	})
 }
 
-func TestEnvMapFloat(t *testing.T) {
-	t.Setenv("SOME_FOO", "foo=2.2;bar=3.3")
+func TestEnvInt_GetCustom(t *testing.T) {
 	testCases := []struct {
-		Input    EnvMapFloat
-		Expected map[string]float64
+		Name     string
+		Input    EnvInt
+		GetFunc  GetEnvFunc
+		Expected int64
 		ErrorMsg string
 	}{
 		{
-			Input: NewEnvMapFloatValue(map[string]float64{
-				"foo": 1.1,
-			}),
-			Expected: map[string]float64{
-				"foo": 1.1,
-			},
+			Name:     "literal_value",
+			Input:    NewEnvIntValue(42),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: 42,
 		},
 		{
-			Input: NewEnvMapFloatVariable("SOME_FOO"),
-			Expected: map[string]float64{
-				"foo": 2.2,
-				"bar": 3.3,
-			},
+			Name:     "variable_from_custom_func",
+			Input:    NewEnvIntVariable("CUSTOM_INT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_INT": "100"}, false),
+			Expected: 100,
 		},
 		{
-			Input:    EnvMapFloat{},
-			Expected: nil,
+			Name:     "variable_with_fallback_value",
+			Input:    NewEnvInt("CUSTOM_INT", 50),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_INT": "200"}, false),
+			Expected: 200,
 		},
 		{
-			Input:    NewEnvMapFloat("SOME_FOO_2", map[string]float64{}),
-			Expected: map[string]float64{},
+			Name:     "empty_variable_uses_fallback",
+			Input:    NewEnvInt("EMPTY_INT", 99),
+			GetFunc:  mockGetEnvFunc(map[string]string{"EMPTY_INT": ""}, false),
+			Expected: 99,
 		},
 		{
-			Input: EnvMapFloat{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			Name:     "zero_value_error",
+			Input:    EnvInt{},
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
+		},
+		{
+			Name:     "custom_func_error",
+			Input:    NewEnvIntVariable("SOME_INT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, true),
+			ErrorMsg: "mock error",
+		},
+		{
+			Name:     "invalid_int_format",
+			Input:    NewEnvIntVariable("INVALID_INT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_INT": "not_a_number"}, false),
+			ErrorMsg: "invalid syntax",
+		},
+		{
+			Name:     "missing_variable_no_fallback",
+			Input:    NewEnvIntVariable("MISSING_INT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
 		},
 	}
 
-	for i, tc := range testCases {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			result, err := tc.Input.Get()
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			result, err := tc.Input.GetCustom(tc.GetFunc)
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
 			} else {
 				assertNilError(t, err)
-				assertDeepEqual(t, result, tc.Expected)
-				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
+				assertDeepEqual(t, tc.Expected, result)
 			}
 		})
 	}
-
-	t.Run("json_decode", func(t *testing.T) {
-		var ev EnvMapFloat
-		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-		result, err := ev.Get()
-		assertNilError(t, err)
-		assertDeepEqual(t, map[string]float64{
-			"foo": 2.2,
-			"bar": 3.3,
-		}, result)
-	})
 }
 
-func TestEnvMapString(t *testing.T) {
-	t.Setenv("SOME_FOO", "foo=2.2;bar=3.3")
-
+func TestEnvBool_GetCustom(t *testing.T) {
 	testCases := []struct {
-		Input    EnvMapString
-		Expected map[string]string
+		Name     string
+		Input    EnvBool
+		GetFunc  GetEnvFunc
+		Expected bool
 		ErrorMsg string
 	}{
 		{
-			Input: NewEnvMapStringValue(map[string]string{
-				"foo": "1.1",
-			}),
-			Expected: map[string]string{
-				"foo": "1.1",
-			},
+			Name:     "literal_value_true",
+			Input:    NewEnvBoolValue(true),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: true,
 		},
 		{
-			Input: NewEnvMapStringVariable("SOME_FOO"),
-			Expected: map[string]string{
-				"foo": "2.2",
-				"bar": "3.3",
-			},
+			Name:     "literal_value_false",
+			Input:    NewEnvBoolValue(false),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: false,
 		},
 		{
-			Input:    EnvMapString{},
-			Expected: nil,
+			Name:     "variable_from_custom_func_true",
+			Input:    NewEnvBoolVariable("CUSTOM_BOOL"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_BOOL": "true"}, false),
+			Expected: true,
 		},
 		{
-			Input:    NewEnvMapString("SOME_FOO_2", map[string]string{}),
-			Expected: map[string]string{},
+			Name:     "variable_from_custom_func_false",
+			Input:    NewEnvBoolVariable("CUSTOM_BOOL"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_BOOL": "false"}, false),
+			Expected: false,
 		},
 		{
-			Input: EnvMapString{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			Name:     "variable_with_fallback_value",
+			Input:    NewEnvBool("CUSTOM_BOOL", false),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_BOOL": "true"}, false),
+			Expected: true,
+		},
+		{
+			Name:     "empty_variable_uses_fallback",
+			Input:    NewEnvBool("EMPTY_BOOL", true),
+			GetFunc:  mockGetEnvFunc(map[string]string{"EMPTY_BOOL": ""}, false),
+			Expected: true,
+		},
+		{
+			Name:     "zero_value_error",
+			Input:    EnvBool{},
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
+		},
+		{
+			Name:     "custom_func_error",
+			Input:    NewEnvBoolVariable("SOME_BOOL"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, true),
+			ErrorMsg: "mock error",
+		},
+		{
+			Name:     "invalid_bool_format",
+			Input:    NewEnvBoolVariable("INVALID_BOOL"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_BOOL": "not_a_bool"}, false),
+			ErrorMsg: "invalid syntax",
+		},
+		{
+			Name:     "missing_variable_no_fallback",
+			Input:    NewEnvBoolVariable("MISSING_BOOL"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
 		},
 	}
 
-	for i, tc := range testCases {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			result, err := tc.Input.Get()
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			result, err := tc.Input.GetCustom(tc.GetFunc)
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
 			} else {
 				assertNilError(t, err)
-				assertDeepEqual(t, result, tc.Expected)
-				assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
+				assertDeepEqual(t, tc.Expected, result)
 			}
 		})
 	}
+}
 
-	t.Run("json_decode", func(t *testing.T) {
-		var ev EnvMapString
-		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-		result, err := ev.Get()
-		assertNilError(t, err)
-		assertDeepEqual(t, map[string]string{
-			"foo": "2.2",
-			"bar": "3.3",
-		}, result)
-	})
+func TestEnvFloat_GetCustom(t *testing.T) {
+	testCases := []struct {
+		Name     string
+		Input    EnvFloat
+		GetFunc  GetEnvFunc
+		Expected float64
+		ErrorMsg string
+	}{
+		{
+			Name:     "literal_value",
+			Input:    NewEnvFloatValue(3.14),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			Expected: 3.14,
+		},
+		{
+			Name:     "variable_from_custom_func",
+			Input:    NewEnvFloatVariable("CUSTOM_FLOAT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_FLOAT": "2.718"}, false),
+			Expected: 2.718,
+		},
+		{
+			Name:     "variable_with_fallback_value",
+			Input:    NewEnvFloat("CUSTOM_FLOAT", 1.5),
+			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_FLOAT": "9.81"}, false),
+			Expected: 9.81,
+		},
+		{
+			Name:     "empty_variable_uses_fallback",
+			Input:    NewEnvFloat("EMPTY_FLOAT", 0.5),
+			GetFunc:  mockGetEnvFunc(map[string]string{"EMPTY_FLOAT": ""}, false),
+			Expected: 0.5,
+		},
+		{
+			Name:     "zero_value_error",
+			Input:    EnvFloat{},
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
+		},
+		{
+			Name:     "custom_func_error",
+			Input:    NewEnvFloatVariable("SOME_FLOAT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, true),
+			ErrorMsg: "mock error",
+		},
+		{
+			Name:     "invalid_float_format",
+			Input:    NewEnvFloatVariable("INVALID_FLOAT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_FLOAT": "not_a_float"}, false),
+			ErrorMsg: "invalid syntax",
+		},
+		{
+			Name:     "missing_variable_no_fallback",
+			Input:    NewEnvFloatVariable("MISSING_FLOAT"),
+			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			result, err := tc.Input.GetCustom(tc.GetFunc)
+			if tc.ErrorMsg != "" {
+				assertErrorContains(t, err, tc.ErrorMsg)
+			} else {
+				assertNilError(t, err)
+				assertDeepEqual(t, tc.Expected, result)
+			}
+		})
+	}
 }
 
 func assertNilError(t *testing.T, err error) {

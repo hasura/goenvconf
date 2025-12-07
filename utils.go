@@ -12,9 +12,8 @@ const (
 )
 
 var (
-	errEnvironmentValueRequired = errors.New("require either value or env")
-	// ErrEnvironmentVariableRequired the error happens when the name of environment variable is empty.
-	ErrEnvironmentVariableRequired = errors.New("the environment variable name is empty")
+	// ErrEnvironmentValueRequired occurs when both value and env fields are null or empty.
+	ErrEnvironmentValueRequired = errors.New("require either value or env")
 	// ErrEnvironmentVariableValueRequired the error happens when the value from environment variable is empty.
 	ErrEnvironmentVariableValueRequired = errors.New("the environment variable value is empty")
 	// ErrParseStringFailed is the error when failed to parse a string to another type.
@@ -140,26 +139,6 @@ func ParseBoolMapFromString(input string) (map[string]bool, error) {
 	}
 
 	return result, nil
-}
-
-func validateEnvironmentValue[T any](value *T, variable *string) error {
-	if value == nil && variable == nil {
-		return errEnvironmentValueRequired
-	}
-
-	if variable != nil && *variable == "" {
-		return ErrEnvironmentVariableRequired
-	}
-
-	return nil
-}
-
-func validateEnvironmentMapValue(variable *string) error {
-	if variable != nil && *variable == "" {
-		return ErrEnvironmentVariableRequired
-	}
-
-	return nil
 }
 
 func getEnvVariableValueRequiredError(envName *string) error {

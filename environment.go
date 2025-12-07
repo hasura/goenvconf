@@ -4,10 +4,12 @@ package goenvconf
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 )
+
+// GetEnvFunc abstracts a custom function to get the value of an environment variable.
+type GetEnvFunc func(string) (string, error)
 
 // EnvString represents either a literal string or an environment reference.
 type EnvString struct {
@@ -48,12 +50,12 @@ func (ev *EnvString) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvString: %w", err)
+	value := EnvString(rawValue)
+	if value.IsZero() {
+		return ErrEnvironmentValueRequired
 	}
 
-	*ev = EnvString(rawValue)
+	*ev = value
 
 	return nil
 }
@@ -66,15 +68,15 @@ func (ev EnvString) IsZero() bool {
 
 // Get gets literal value or from system environment.
 func (ev EnvString) Get() (string, error) {
-	err := validateEnvironmentValue(ev.Value, ev.Variable)
-	if err != nil {
-		return "", err
+	if ev.IsZero() {
+		return "", ErrEnvironmentValueRequired
 	}
 
 	var value string
 
 	var envExisted bool
-	if ev.Variable != nil {
+
+	if ev.Variable != nil && *ev.Variable != "" {
 		value, envExisted = os.LookupEnv(*ev.Variable)
 		if value != "" {
 			return value, nil
@@ -106,6 +108,23 @@ func (ev EnvString) GetOrDefault(defaultValue string) (string, error) {
 	}
 
 	return result, nil
+}
+
+// GetCustom gets literal value or from system environment by a custom function.
+func (ev EnvString) GetCustom(getFunc GetEnvFunc) (string, error) {
+	if ev.IsZero() {
+		return "", ErrEnvironmentValueRequired
+	}
+
+	if ev.Variable != nil && *ev.Variable != "" {
+		return getFunc(*ev.Variable)
+	}
+
+	if ev.Value != nil {
+		return *ev.Value, nil
+	}
+
+	return "", getEnvVariableValueRequiredError(ev.Variable)
 }
 
 // EnvInt represents either a literal integer or an environment reference.
@@ -153,24 +172,23 @@ func (ev *EnvInt) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvInt: %w", err)
+	value := EnvInt(rawValue)
+	if value.IsZero() {
+		return ErrEnvironmentValueRequired
 	}
 
-	*ev = EnvInt(rawValue)
+	*ev = value
 
 	return nil
 }
 
 // Get gets literal value or from system environment.
 func (ev EnvInt) Get() (int64, error) {
-	err := validateEnvironmentValue(ev.Value, ev.Variable)
-	if err != nil {
-		return 0, err
+	if ev.IsZero() {
+		return 0, ErrEnvironmentValueRequired
 	}
 
-	if ev.Variable != nil {
+	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
 			return strconv.ParseInt(rawValue, 10, 64)
@@ -196,6 +214,30 @@ func (ev EnvInt) GetOrDefault(defaultValue int64) (int64, error) {
 	}
 
 	return result, nil
+}
+
+// GetCustom gets literal value or from system environment by a custom function.
+func (ev EnvInt) GetCustom(getFunc GetEnvFunc) (int64, error) {
+	if ev.IsZero() {
+		return 0, ErrEnvironmentValueRequired
+	}
+
+	if ev.Variable != nil && *ev.Variable != "" {
+		rawValue, err := getFunc(*ev.Variable)
+		if err != nil {
+			return 0, err
+		}
+
+		if rawValue != "" {
+			return strconv.ParseInt(rawValue, 10, 64)
+		}
+	}
+
+	if ev.Value != nil {
+		return *ev.Value, nil
+	}
+
+	return 0, getEnvVariableValueRequiredError(ev.Variable)
 }
 
 // EnvBool represents either a literal boolean or an environment reference.
@@ -243,24 +285,23 @@ func (ev *EnvBool) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvBool: %w", err)
+	value := EnvBool(rawValue)
+	if value.IsZero() {
+		return ErrEnvironmentValueRequired
 	}
 
-	*ev = EnvBool(rawValue)
+	*ev = value
 
 	return nil
 }
 
 // Get gets literal value or from system environment.
 func (ev EnvBool) Get() (bool, error) {
-	err := validateEnvironmentValue(ev.Value, ev.Variable)
-	if err != nil {
-		return false, err
+	if ev.IsZero() {
+		return false, ErrEnvironmentValueRequired
 	}
 
-	if ev.Variable != nil {
+	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
 			return strconv.ParseBool(rawValue)
@@ -286,6 +327,30 @@ func (ev EnvBool) GetOrDefault(defaultValue bool) (bool, error) {
 	}
 
 	return result, nil
+}
+
+// GetCustom gets literal value or from system environment with custom function.
+func (ev EnvBool) GetCustom(getFunc GetEnvFunc) (bool, error) {
+	if ev.IsZero() {
+		return false, ErrEnvironmentValueRequired
+	}
+
+	if ev.Variable != nil && *ev.Variable != "" {
+		rawValue, err := getFunc(*ev.Variable)
+		if err != nil {
+			return false, err
+		}
+
+		if rawValue != "" {
+			return strconv.ParseBool(rawValue)
+		}
+	}
+
+	if ev.Value != nil {
+		return *ev.Value, nil
+	}
+
+	return false, getEnvVariableValueRequiredError(ev.Variable)
 }
 
 // EnvFloat represents either a literal floating point number or an environment reference.
@@ -333,24 +398,23 @@ func (ev *EnvFloat) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	err = validateEnvironmentValue(rawValue.Value, rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvFloat: %w", err)
+	value := EnvFloat(rawValue)
+	if value.IsZero() {
+		return ErrEnvironmentValueRequired
 	}
 
-	*ev = EnvFloat(rawValue)
+	*ev = value
 
 	return nil
 }
 
 // Get gets literal value or from system environment.
 func (ev EnvFloat) Get() (float64, error) {
-	err := validateEnvironmentValue(ev.Value, ev.Variable)
-	if err != nil {
-		return 0, err
+	if ev.IsZero() {
+		return 0, ErrEnvironmentValueRequired
 	}
 
-	if ev.Variable != nil {
+	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
 			return strconv.ParseFloat(rawValue, 64)
@@ -378,290 +442,26 @@ func (ev EnvFloat) GetOrDefault(defaultValue float64) (float64, error) {
 	return result, nil
 }
 
-// EnvMapString represents either a literal string map or an environment reference.
-type EnvMapString struct {
-	Value    map[string]string `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string           `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
-}
-
-// NewEnvMapString creates an EnvMapString instance.
-func NewEnvMapString(env string, value map[string]string) EnvMapString {
-	return EnvMapString{
-		Variable: &env,
-		Value:    value,
-	}
-}
-
-// NewEnvMapStringValue creates an EnvMapString with a literal value.
-func NewEnvMapStringValue(value map[string]string) EnvMapString {
-	return EnvMapString{
-		Value: value,
-	}
-}
-
-// NewEnvMapStringVariable creates an EnvMapString with a variable name.
-func NewEnvMapStringVariable(name string) EnvMapString {
-	return EnvMapString{
-		Variable: &name,
-	}
-}
-
-// IsZero checks if the instance is empty.
-func (ev EnvMapString) IsZero() bool {
-	return (ev.Variable == nil || *ev.Variable == "") &&
-		ev.Value == nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapString) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapString
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
+// GetCustom gets literal value or from system environment by a custom function.
+func (ev EnvFloat) GetCustom(getFunc GetEnvFunc) (float64, error) {
+	if ev.IsZero() {
+		return 0, ErrEnvironmentValueRequired
 	}
 
-	err = validateEnvironmentMapValue(rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvMapString: %w", err)
-	}
+	if ev.Variable != nil && *ev.Variable != "" {
+		rawValue, err := getFunc(*ev.Variable)
+		if err != nil {
+			return 0, err
+		}
 
-	*ev = EnvMapString(rawValue)
-
-	return nil
-}
-
-// Get gets literal value or from system environment.
-func (ev EnvMapString) Get() (map[string]string, error) {
-	err := validateEnvironmentMapValue(ev.Variable)
-	if err != nil {
-		return nil, err
-	}
-
-	if ev.Variable != nil {
-		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
-			return ParseStringMapFromString(rawValue)
+			return strconv.ParseFloat(rawValue, 64)
 		}
 	}
 
-	return ev.Value, nil
-}
-
-// EnvMapInt represents either a literal int map or an environment reference.
-type EnvMapInt struct {
-	Value    map[string]int64 `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string          `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
-}
-
-// NewEnvMapInt creates an EnvMapInt instance.
-func NewEnvMapInt(env string, value map[string]int64) EnvMapInt {
-	return EnvMapInt{
-		Variable: &env,
-		Value:    value,
-	}
-}
-
-// NewEnvMapIntValue creates an EnvMapInt with a literal value.
-func NewEnvMapIntValue(value map[string]int64) EnvMapInt {
-	return EnvMapInt{
-		Value: value,
-	}
-}
-
-// NewEnvMapIntVariable creates an EnvMapInt with a variable name.
-func NewEnvMapIntVariable(name string) EnvMapInt {
-	return EnvMapInt{
-		Variable: &name,
-	}
-}
-
-// IsZero checks if the instance is empty.
-func (ev EnvMapInt) IsZero() bool {
-	return (ev.Variable == nil || *ev.Variable == "") &&
-		ev.Value == nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapInt) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapInt
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
+	if ev.Value != nil {
+		return *ev.Value, nil
 	}
 
-	err = validateEnvironmentMapValue(rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvMapInt: %w", err)
-	}
-
-	*ev = EnvMapInt(rawValue)
-
-	return nil
-}
-
-// Get gets literal value or from system environment.
-func (ev EnvMapInt) Get() (map[string]int64, error) {
-	err := validateEnvironmentMapValue(ev.Variable)
-	if err != nil {
-		return nil, err
-	}
-
-	if ev.Variable != nil {
-		rawValue := os.Getenv(*ev.Variable)
-		if rawValue != "" {
-			return ParseIntegerMapFromString[int64](rawValue)
-		}
-	}
-
-	return ev.Value, nil
-}
-
-// EnvMapFloat represents either a literal float map or an environment reference.
-type EnvMapFloat struct {
-	Value    map[string]float64 `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string            `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
-}
-
-// NewEnvMapFloat creates an EnvMapFloat instance.
-func NewEnvMapFloat(env string, value map[string]float64) EnvMapFloat {
-	return EnvMapFloat{
-		Variable: &env,
-		Value:    value,
-	}
-}
-
-// NewEnvMapFloatValue creates an EnvMapFloat with a literal value.
-func NewEnvMapFloatValue(value map[string]float64) EnvMapFloat {
-	return EnvMapFloat{
-		Value: value,
-	}
-}
-
-// NewEnvMapFloatVariable creates an EnvMapFloat with a variable name.
-func NewEnvMapFloatVariable(name string) EnvMapFloat {
-	return EnvMapFloat{
-		Variable: &name,
-	}
-}
-
-// IsZero checks if the instance is empty.
-func (ev EnvMapFloat) IsZero() bool {
-	return (ev.Variable == nil || *ev.Variable == "") &&
-		ev.Value == nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapFloat
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	err = validateEnvironmentMapValue(rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvMapFloat: %w", err)
-	}
-
-	*ev = EnvMapFloat(rawValue)
-
-	return nil
-}
-
-// Get gets literal value or from system environment.
-func (ev EnvMapFloat) Get() (map[string]float64, error) {
-	err := validateEnvironmentMapValue(ev.Variable)
-	if err != nil {
-		return nil, err
-	}
-
-	if ev.Variable != nil {
-		rawValue := os.Getenv(*ev.Variable)
-		if rawValue != "" {
-			return ParseFloatMapFromString[float64](rawValue)
-		}
-	}
-
-	return ev.Value, nil
-}
-
-// EnvMapBool represents either a literal bool map or an environment reference.
-type EnvMapBool struct {
-	Value    map[string]bool `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string         `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
-}
-
-// NewEnvMapBool creates an EnvMapBool instance.
-func NewEnvMapBool(env string, value map[string]bool) EnvMapBool {
-	return EnvMapBool{
-		Variable: &env,
-		Value:    value,
-	}
-}
-
-// NewEnvMapBoolValue creates an EnvMapBool with a literal value.
-func NewEnvMapBoolValue(value map[string]bool) EnvMapBool {
-	return EnvMapBool{
-		Value: value,
-	}
-}
-
-// NewEnvMapBoolVariable creates an EnvMapBool with a variable name.
-func NewEnvMapBoolVariable(name string) EnvMapBool {
-	return EnvMapBool{
-		Variable: &name,
-	}
-}
-
-// IsZero checks if the instance is empty.
-func (ev EnvMapBool) IsZero() bool {
-	return (ev.Variable == nil || *ev.Variable == "") &&
-		ev.Value == nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapBool) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapBool
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	err = validateEnvironmentMapValue(rawValue.Variable)
-	if err != nil {
-		return fmt.Errorf("EnvMapBool: %w", err)
-	}
-
-	*ev = EnvMapBool(rawValue)
-
-	return nil
-}
-
-// Get gets literal value or from system environment.
-func (ev EnvMapBool) Get() (map[string]bool, error) {
-	err := validateEnvironmentMapValue(ev.Variable)
-	if err != nil {
-		return nil, err
-	}
-
-	if ev.Variable != nil {
-		rawValue := os.Getenv(*ev.Variable)
-		if rawValue != "" {
-			return ParseBoolMapFromString(rawValue)
-		}
-	}
-
-	return ev.Value, nil
+	return 0, getEnvVariableValueRequiredError(ev.Variable)
 }

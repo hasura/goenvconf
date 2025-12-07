@@ -2,8 +2,6 @@ package goenvconf
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"os"
 )
 
@@ -46,10 +44,6 @@ func (ev *EnvAny) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	if rawValue.Variable != nil && *rawValue.Variable == "" {
-		return fmt.Errorf("EnvAny: %w", ErrEnvironmentVariableRequired)
-	}
-
 	*ev = EnvAny(rawValue)
 
 	return nil
@@ -63,11 +57,7 @@ func (ev EnvAny) IsZero() bool {
 
 // Get gets literal value or from system environment.
 func (ev EnvAny) Get() (any, error) {
-	if ev.Variable != nil {
-		if *ev.Variable == "" {
-			return nil, fmt.Errorf("EnvAny: %w", ErrEnvironmentVariableRequired)
-		}
-
+	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
 			var result any
@@ -81,16 +71,22 @@ func (ev EnvAny) Get() (any, error) {
 	return ev.Value, nil
 }
 
-// GetOrDefault returns the default value if the environment value is empty.
-func (ev EnvAny) GetOrDefault(defaultValue any) (any, error) {
-	result, err := ev.Get()
-	if err != nil {
-		if errors.Is(err, ErrEnvironmentVariableValueRequired) {
-			return defaultValue, nil
+// GetCustom gets literal value or from system environment by a custom function.
+func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
+	if ev.Variable != nil && *ev.Variable != "" {
+		rawValue, err := getFunc(*ev.Variable)
+		if err != nil {
+			return nil, err
 		}
 
-		return false, err
+		if rawValue != "" {
+			var result any
+
+			err := json.Unmarshal([]byte(rawValue), &result)
+
+			return result, err
+		}
 	}
 
-	return result, nil
+	return ev.Value, nil
 }
