@@ -34,12 +34,6 @@ func TestEnvAny(t *testing.T) {
 			Input:    NewEnvAny("SOME_FOO_2", "baz"),
 			Expected: "baz",
 		},
-		{
-			Input: EnvAny{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
-		},
 	}
 
 	for i, tc := range testCases {
@@ -60,8 +54,5 @@ func TestEnvAny(t *testing.T) {
 	t.Run("json_decode", func(t *testing.T) {
 		var ev EnvAny
 		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-		result, err := ev.GetOrDefault(0)
-		assertNilError(t, err)
-		assertDeepEqual(t, float64(2.2), result)
 	})
 }

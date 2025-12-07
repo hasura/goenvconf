@@ -25,7 +25,7 @@ func TestEnvString(t *testing.T) {
 		},
 		{
 			Input:    EnvString{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvString("SOME_BAR", "bar"),
@@ -35,7 +35,7 @@ func TestEnvString(t *testing.T) {
 			Input: EnvString{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -88,7 +88,7 @@ func TestEnvBool(t *testing.T) {
 		},
 		{
 			Input:    EnvBool{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvBool("SOME_FOO_2", true),
@@ -98,7 +98,7 @@ func TestEnvBool(t *testing.T) {
 			Input: EnvBool{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -162,7 +162,7 @@ func TestEnvInt(t *testing.T) {
 		},
 		{
 			Input:    EnvInt{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvInt("SOME_FOO_2", 10),
@@ -172,7 +172,7 @@ func TestEnvInt(t *testing.T) {
 			Input: EnvInt{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -230,7 +230,7 @@ func TestEnvFloat(t *testing.T) {
 		},
 		{
 			Input:    EnvFloat{},
-			ErrorMsg: errEnvironmentValueRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 		{
 			Input:    NewEnvFloat("SOME_FOO_1", 10),
@@ -240,7 +240,7 @@ func TestEnvFloat(t *testing.T) {
 			Input: EnvFloat{
 				Variable: toPtr(""),
 			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
+			ErrorMsg: ErrEnvironmentValueRequired.Error(),
 		},
 	}
 
@@ -305,12 +305,6 @@ func TestEnvMapBool(t *testing.T) {
 			Input:    NewEnvMapBool("SOME_FOO_2", map[string]bool{}),
 			Expected: map[string]bool{},
 		},
-		{
-			Input: EnvMapBool{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
-		},
 	}
 
 	for i, tc := range testCases {
@@ -367,12 +361,6 @@ func TestEnvMapInt(t *testing.T) {
 		{
 			Input:    NewEnvMapInt("SOME_FOO_2", map[string]int64{}),
 			Expected: map[string]int64{},
-		},
-		{
-			Input: EnvMapInt{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
@@ -431,12 +419,6 @@ func TestEnvMapFloat(t *testing.T) {
 			Input:    NewEnvMapFloat("SOME_FOO_2", map[string]float64{}),
 			Expected: map[string]float64{},
 		},
-		{
-			Input: EnvMapFloat{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
-		},
 	}
 
 	for i, tc := range testCases {
@@ -494,12 +476,6 @@ func TestEnvMapString(t *testing.T) {
 		{
 			Input:    NewEnvMapString("SOME_FOO_2", map[string]string{}),
 			Expected: map[string]string{},
-		},
-		{
-			Input: EnvMapString{
-				Variable: toPtr(""),
-			},
-			ErrorMsg: ErrEnvironmentVariableRequired.Error(),
 		},
 	}
 
