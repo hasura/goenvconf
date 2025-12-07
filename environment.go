@@ -330,7 +330,7 @@ func (ev EnvBool) GetOrDefault(defaultValue bool) (bool, error) {
 }
 
 // GetCustom gets literal value or from system environment with custom function.
-func (ev EnvBool) GetCustom(getFunc func(string) (string, error)) (bool, error) {
+func (ev EnvBool) GetCustom(getFunc GetEnvFunc) (bool, error) {
 	if ev.IsZero() {
 		return false, ErrEnvironmentValueRequired
 	}

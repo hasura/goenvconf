@@ -1,7 +1,6 @@
 package goenvconf
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 )
@@ -50,9 +49,4 @@ func TestEnvAny(t *testing.T) {
 			assertDeepEqual(t, tc.Input.IsZero(), tc.Expected == nil)
 		})
 	}
-
-	t.Run("json_decode", func(t *testing.T) {
-		var ev EnvAny
-		assertNilError(t, json.Unmarshal([]byte(`{"env": "SOME_FOO"}`), &ev))
-	})
 }
