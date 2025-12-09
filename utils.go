@@ -1,8 +1,10 @@
 package goenvconf
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -139,6 +141,21 @@ func ParseBoolMapFromString(input string) (map[string]bool, error) {
 	}
 
 	return result, nil
+}
+
+// OSEnvGetter wraps the GetOSEnv function with context.
+func OSEnvGetter(_ context.Context) GetEnvFunc {
+	return GetOSEnv
+}
+
+// GetOSEnv implements the GetEnvFunc with OS environment.
+func GetOSEnv(s string) (string, error) {
+	value, ok := os.LookupEnv(s)
+	if !ok {
+		return value, ErrEnvironmentVariableValueRequired
+	}
+
+	return value, nil
 }
 
 func getEnvVariableValueRequiredError(envName *string) error {

@@ -1,6 +1,7 @@
 package goenvconf
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -290,6 +291,8 @@ func mockGetEnvFunc(values map[string]string, returnError bool) GetEnvFunc {
 }
 
 func TestEnvString_GetCustom(t *testing.T) {
+	t.Setenv("TEST_VAR", "bar")
+
 	testCases := []struct {
 		Name     string
 		Input    EnvString
@@ -300,13 +303,13 @@ func TestEnvString_GetCustom(t *testing.T) {
 		{
 			Name:     "literal_value",
 			Input:    NewEnvStringValue("foo"),
-			GetFunc:  mockGetEnvFunc(map[string]string{}, false),
+			GetFunc:  OSEnvGetter(context.TODO()),
 			Expected: "foo",
 		},
 		{
 			Name:     "variable_from_custom_func",
-			Input:    NewEnvStringVariable("CUSTOM_VAR"),
-			GetFunc:  mockGetEnvFunc(map[string]string{"CUSTOM_VAR": "bar"}, false),
+			Input:    NewEnvStringVariable("TEST_VAR"),
+			GetFunc:  OSEnvGetter(context.TODO()),
 			Expected: "bar",
 		},
 		{
@@ -330,8 +333,8 @@ func TestEnvString_GetCustom(t *testing.T) {
 		{
 			Name:     "custom_func_error",
 			Input:    NewEnvStringVariable("SOME_VAR"),
-			GetFunc:  mockGetEnvFunc(map[string]string{}, true),
-			ErrorMsg: "mock error",
+			GetFunc:  OSEnvGetter(context.TODO()),
+			ErrorMsg: ErrEnvironmentVariableValueRequired.Error(),
 		},
 		{
 			Name:     "missing_variable_returns_empty_string",
