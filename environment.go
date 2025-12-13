@@ -130,10 +130,10 @@ func (ev EnvString) GetCustom(getFunc GetEnvFunc) (string, error) {
 // Equal checks if this instance equals the target value.
 func (ev EnvString) Equal(target EnvString) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		ev.Value == target.Value
+		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -175,10 +175,10 @@ func (ev EnvInt) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvInt) Equal(target EnvInt) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		ev.Value == target.Value
+		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -299,10 +299,10 @@ func (ev EnvBool) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvBool) Equal(target EnvBool) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		ev.Value == target.Value
+		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -423,10 +423,10 @@ func (ev EnvFloat) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvFloat) Equal(target EnvFloat) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		ev.Value == target.Value
+		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }

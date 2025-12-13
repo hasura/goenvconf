@@ -43,10 +43,10 @@ func (ev EnvMapString) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvMapString) Equal(target EnvMapString) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		maps.Equal(ev.Value, target.Value)
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -132,10 +132,10 @@ func (ev EnvMapInt) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvMapInt) Equal(target EnvMapInt) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		maps.Equal(ev.Value, target.Value)
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -221,10 +221,10 @@ func (ev EnvMapFloat) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvMapFloat) Equal(target EnvMapFloat) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		maps.Equal(ev.Value, target.Value)
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
@@ -310,10 +310,10 @@ func (ev EnvMapBool) IsZero() bool {
 // Equal checks if this instance equals the target value.
 func (ev EnvMapBool) Equal(target EnvMapBool) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		maps.Equal(ev.Value, target.Value)
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 
 	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(*ev.Variable == *target.Variable)
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 
 	return isSameValue && isSameEnv
 }
