@@ -2,6 +2,7 @@ package goenvconf
 
 import (
 	"encoding/json"
+	"maps"
 	"os"
 )
 
@@ -37,6 +38,17 @@ func NewEnvMapStringVariable(name string) EnvMapString {
 func (ev EnvMapString) IsZero() bool {
 	return (ev.Variable == nil || *ev.Variable == "") &&
 		ev.Value == nil
+}
+
+// Equal checks if this instance equals the target value.
+func (ev EnvMapString) Equal(target EnvMapString) bool {
+	isSameValue := (ev.Value == nil && target.Value == nil) ||
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
+
+	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
+
+	return isSameValue && isSameEnv
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -117,6 +129,17 @@ func (ev EnvMapInt) IsZero() bool {
 		ev.Value == nil
 }
 
+// Equal checks if this instance equals the target value.
+func (ev EnvMapInt) Equal(target EnvMapInt) bool {
+	isSameValue := (ev.Value == nil && target.Value == nil) ||
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
+
+	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
+
+	return isSameValue && isSameEnv
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvMapInt) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapInt
@@ -195,6 +218,17 @@ func (ev EnvMapFloat) IsZero() bool {
 		ev.Value == nil
 }
 
+// Equal checks if this instance equals the target value.
+func (ev EnvMapFloat) Equal(target EnvMapFloat) bool {
+	isSameValue := (ev.Value == nil && target.Value == nil) ||
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
+
+	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
+
+	return isSameValue && isSameEnv
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
 	type Plain EnvMapFloat
@@ -271,6 +305,17 @@ func NewEnvMapBoolVariable(name string) EnvMapBool {
 func (ev EnvMapBool) IsZero() bool {
 	return (ev.Variable == nil || *ev.Variable == "") &&
 		ev.Value == nil
+}
+
+// Equal checks if this instance equals the target value.
+func (ev EnvMapBool) Equal(target EnvMapBool) bool {
+	isSameValue := (ev.Value == nil && target.Value == nil) ||
+		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
+
+	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
+
+	return isSameValue && isSameEnv
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
