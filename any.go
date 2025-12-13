@@ -96,9 +96,10 @@ func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
 func (ev EnvAny) Equal(target EnvAny) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && reflect.DeepEqual(ev.Value, target.Value))
+	if !isSameValue {
+		return false
+	}
 
-	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-
-	return isSameValue && isSameEnv
 }

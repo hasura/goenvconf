@@ -66,6 +66,18 @@ func (ev EnvString) IsZero() bool {
 		ev.Value == nil
 }
 
+// Equal checks if this instance equals the target value.
+func (ev EnvString) Equal(target EnvString) bool {
+	isSameValue := (ev.Value == nil && target.Value == nil) ||
+		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
+	if !isSameValue {
+		return false
+	}
+
+	return (ev.Variable == nil && target.Variable == nil) ||
+		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
+}
+
 // Get gets literal value or from system environment.
 func (ev EnvString) Get() (string, error) {
 	if ev.IsZero() {
@@ -127,17 +139,6 @@ func (ev EnvString) GetCustom(getFunc GetEnvFunc) (string, error) {
 	return "", getEnvVariableValueRequiredError(ev.Variable)
 }
 
-// Equal checks if this instance equals the target value.
-func (ev EnvString) Equal(target EnvString) bool {
-	isSameValue := (ev.Value == nil && target.Value == nil) ||
-		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
-
-	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
-		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-
-	return isSameValue && isSameEnv
-}
-
 // EnvInt represents either a literal integer or an environment reference.
 type EnvInt struct {
 	Value    *int64  `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
@@ -176,11 +177,12 @@ func (ev EnvInt) IsZero() bool {
 func (ev EnvInt) Equal(target EnvInt) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
+	if !isSameValue {
+		return false
+	}
 
-	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-
-	return isSameValue && isSameEnv
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -300,11 +302,12 @@ func (ev EnvBool) IsZero() bool {
 func (ev EnvBool) Equal(target EnvBool) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
+	if !isSameValue {
+		return false
+	}
 
-	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-
-	return isSameValue && isSameEnv
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -424,11 +427,12 @@ func (ev EnvFloat) IsZero() bool {
 func (ev EnvFloat) Equal(target EnvFloat) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && *ev.Value == *target.Value)
+	if !isSameValue {
+		return false
+	}
 
-	isSameEnv := (ev.Variable == nil && target.Variable == nil) ||
+	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-
-	return isSameValue && isSameEnv
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
