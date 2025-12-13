@@ -148,4 +148,3 @@ func TestEnvAny_Equal(t *testing.T) {
 		})
 	}
 }
-
