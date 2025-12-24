@@ -1,7 +1,6 @@
 package goenvconf
 
 import (
-	"encoding/json"
 	"maps"
 	"os"
 )
@@ -50,22 +49,6 @@ func (ev EnvMapString) Equal(target EnvMapString) bool {
 
 	return (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapString) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapString
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	*ev = EnvMapString(rawValue)
-
-	return nil
 }
 
 // Get gets literal value or from system environment.
@@ -142,22 +125,6 @@ func (ev EnvMapInt) Equal(target EnvMapInt) bool {
 		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapInt) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapInt
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	*ev = EnvMapInt(rawValue)
-
-	return nil
-}
-
 // Get gets literal value or from system environment.
 func (ev EnvMapInt) Get() (map[string]int64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
@@ -232,22 +199,6 @@ func (ev EnvMapFloat) Equal(target EnvMapFloat) bool {
 		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapFloat) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapFloat
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	*ev = EnvMapFloat(rawValue)
-
-	return nil
-}
-
 // Get gets literal value or from system environment.
 func (ev EnvMapFloat) Get() (map[string]float64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
@@ -320,22 +271,6 @@ func (ev EnvMapBool) Equal(target EnvMapBool) bool {
 
 	return (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && maps.Equal(ev.Value, target.Value))
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvMapBool) UnmarshalJSON(b []byte) error {
-	type Plain EnvMapBool
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	*ev = EnvMapBool(rawValue)
-
-	return nil
 }
 
 // Get gets literal value or from system environment.

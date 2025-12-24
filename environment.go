@@ -2,7 +2,6 @@
 package goenvconf
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"strconv"
@@ -37,27 +36,6 @@ func NewEnvStringVariable(name string) EnvString {
 	return EnvString{
 		Variable: &name,
 	}
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvString) UnmarshalJSON(b []byte) error {
-	type Plain EnvString
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	value := EnvString(rawValue)
-	if value.IsZero() {
-		return ErrEnvironmentValueRequired
-	}
-
-	*ev = value
-
-	return nil
 }
 
 // IsZero checks if the instance is empty.
@@ -185,27 +163,6 @@ func (ev EnvInt) Equal(target EnvInt) bool {
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvInt) UnmarshalJSON(b []byte) error {
-	type Plain EnvInt
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	value := EnvInt(rawValue)
-	if value.IsZero() {
-		return ErrEnvironmentValueRequired
-	}
-
-	*ev = value
-
-	return nil
-}
-
 // Get gets literal value or from system environment.
 func (ev EnvInt) Get() (int64, error) {
 	if ev.IsZero() {
@@ -310,27 +267,6 @@ func (ev EnvBool) Equal(target EnvBool) bool {
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvBool) UnmarshalJSON(b []byte) error {
-	type Plain EnvBool
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	value := EnvBool(rawValue)
-	if value.IsZero() {
-		return ErrEnvironmentValueRequired
-	}
-
-	*ev = value
-
-	return nil
-}
-
 // Get gets literal value or from system environment.
 func (ev EnvBool) Get() (bool, error) {
 	if ev.IsZero() {
@@ -433,27 +369,6 @@ func (ev EnvFloat) Equal(target EnvFloat) bool {
 
 	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvFloat) UnmarshalJSON(b []byte) error {
-	type Plain EnvFloat
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	value := EnvFloat(rawValue)
-	if value.IsZero() {
-		return ErrEnvironmentValueRequired
-	}
-
-	*ev = value
-
-	return nil
 }
 
 // Get gets literal value or from system environment.
