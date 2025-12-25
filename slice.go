@@ -300,7 +300,7 @@ func (ev EnvFloatSlice) Get() ([]float64, error) {
 				f64Val, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
 				if err != nil {
 					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
+						"failed to convert %s variable to floats: %w",
 						*ev.Variable, err,
 					)
 				}
@@ -344,7 +344,7 @@ func (ev EnvFloatSlice) GetCustom(getFunc GetEnvFunc) ([]float64, error) {
 				f64Val, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
 				if err != nil {
 					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
+						"failed to convert %s variable to floats: %w",
 						*ev.Variable, err,
 					)
 				}
@@ -473,7 +473,7 @@ func (ev EnvBoolSlice) GetCustom(getFunc GetEnvFunc) ([]bool, error) {
 				f64Val, err := strconv.ParseBool(strings.TrimSpace(val))
 				if err != nil {
 					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
+						"failed to convert %s variable to booleans: %w",
 						*ev.Variable, err,
 					)
 				}
