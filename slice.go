@@ -429,7 +429,7 @@ func (ev EnvBoolSlice) Get() ([]bool, error) {
 				bVal, err := strconv.ParseBool(strings.TrimSpace(val))
 				if err != nil {
 					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
+						"failed to convert %s variable to booleans: %w",
 						*ev.Variable, err,
 					)
 				}
@@ -470,7 +470,7 @@ func (ev EnvBoolSlice) GetCustom(getFunc GetEnvFunc) ([]bool, error) {
 			results := make([]bool, len(rawValues))
 
 			for index, val := range rawValues {
-				f64Val, err := strconv.ParseBool(strings.TrimSpace(val))
+				bVal, err := strconv.ParseBool(strings.TrimSpace(val))
 				if err != nil {
 					return nil, fmt.Errorf(
 						"failed to convert %s variable to booleans: %w",
@@ -478,7 +478,7 @@ func (ev EnvBoolSlice) GetCustom(getFunc GetEnvFunc) ([]bool, error) {
 					)
 				}
 
-				results[index] = f64Val
+				results[index] = bVal
 			}
 
 			return results, nil
