@@ -68,7 +68,7 @@ func TestEnvMapString_GetCustom(t *testing.T) {
 			Name:     "invalid_map_format",
 			Input:    NewEnvMapStringVariable("INVALID_MAP"),
 			GetFunc:  mockGetEnvFuncForMaps(map[string]string{"INVALID_MAP": "invalid_format_no_equals"}, false),
-			ErrorMsg: ErrParseStringFailed.Error(),
+			ErrorMsg: "ParseEnvFailed",
 		},
 	}
 
@@ -133,7 +133,7 @@ func TestEnvMapInt_GetCustom(t *testing.T) {
 			Name:     "invalid_int_value",
 			Input:    NewEnvMapIntVariable("INVALID_MAP"),
 			GetFunc:  mockGetEnvFuncForMaps(map[string]string{"INVALID_MAP": "key=not_a_number"}, false),
-			ErrorMsg: ErrParseStringFailed.Error(),
+			ErrorMsg: "ParseEnvFailed",
 		},
 	}
 
@@ -198,7 +198,7 @@ func TestEnvMapFloat_GetCustom(t *testing.T) {
 			Name:     "invalid_float_value",
 			Input:    NewEnvMapFloatVariable("INVALID_MAP"),
 			GetFunc:  mockGetEnvFuncForMaps(map[string]string{"INVALID_MAP": "key=not_a_float"}, false),
-			ErrorMsg: ErrParseStringFailed.Error(),
+			ErrorMsg: "ParseEnvFailed",
 		},
 	}
 
@@ -263,7 +263,7 @@ func TestEnvMapBool_GetCustom(t *testing.T) {
 			Name:     "invalid_bool_value",
 			Input:    NewEnvMapBoolVariable("INVALID_MAP"),
 			GetFunc:  mockGetEnvFuncForMaps(map[string]string{"INVALID_MAP": "key=not_a_bool"}, false),
-			ErrorMsg: ErrParseStringFailed.Error(),
+			ErrorMsg: "ParseEnvFailed",
 		},
 	}
 

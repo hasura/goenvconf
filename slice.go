@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strconv"
-	"strings"
 )
 
 // EnvStringSlice represents either a literal string slice or an environment reference.
@@ -66,7 +64,7 @@ func (ev EnvStringSlice) Get() ([]string, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, envExisted = os.LookupEnv(*ev.Variable)
 		if value != "" {
-			return strings.Split(value, ","), nil
+			return ParseStringSliceFromString(value), nil
 		}
 	}
 
@@ -94,7 +92,7 @@ func (ev EnvStringSlice) GetCustom(getFunc GetEnvFunc) ([]string, error) {
 		}
 
 		if value != "" {
-			return strings.Split(value, ","), nil
+			return ParseStringSliceFromString(value), nil
 		}
 	}
 
@@ -163,23 +161,10 @@ func (ev EnvIntSlice) Get() ([]int64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, envExisted = os.LookupEnv(*ev.Variable)
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]int64, len(rawValues))
-
-			for index, val := range rawValues {
-				intVal, err := strconv.ParseInt(strings.TrimSpace(val), 10, 64)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = intVal
-			}
-
-			return results, nil
+			return parseIntSliceFromStringWithErrorPrefix[int64](
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 
@@ -207,23 +192,10 @@ func (ev EnvIntSlice) GetCustom(getFunc GetEnvFunc) ([]int64, error) {
 		}
 
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]int64, len(rawValues))
-
-			for index, val := range rawValues {
-				intVal, err := strconv.ParseInt(strings.TrimSpace(val), 10, 64)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to integers: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = intVal
-			}
-
-			return results, nil
+			return parseIntSliceFromStringWithErrorPrefix[int64](
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 
@@ -292,23 +264,10 @@ func (ev EnvFloatSlice) Get() ([]float64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, envExisted = os.LookupEnv(*ev.Variable)
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]float64, len(rawValues))
-
-			for index, val := range rawValues {
-				f64Val, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to floats: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = f64Val
-			}
-
-			return results, nil
+			return parseFloatSliceFromStringWithErrorPrefix[float64](
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 
@@ -336,23 +295,10 @@ func (ev EnvFloatSlice) GetCustom(getFunc GetEnvFunc) ([]float64, error) {
 		}
 
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]float64, len(rawValues))
-
-			for index, val := range rawValues {
-				f64Val, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to floats: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = f64Val
-			}
-
-			return results, nil
+			return parseFloatSliceFromStringWithErrorPrefix[float64](
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 
@@ -421,23 +367,10 @@ func (ev EnvBoolSlice) Get() ([]bool, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, envExisted = os.LookupEnv(*ev.Variable)
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]bool, len(rawValues))
-
-			for index, val := range rawValues {
-				bVal, err := strconv.ParseBool(strings.TrimSpace(val))
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to booleans: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = bVal
-			}
-
-			return results, nil
+			return parseBoolSliceFromStringWithErrorPrefix(
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 
@@ -465,23 +398,10 @@ func (ev EnvBoolSlice) GetCustom(getFunc GetEnvFunc) ([]bool, error) {
 		}
 
 		if value != "" {
-			rawValues := strings.Split(value, ",")
-
-			results := make([]bool, len(rawValues))
-
-			for index, val := range rawValues {
-				bVal, err := strconv.ParseBool(strings.TrimSpace(val))
-				if err != nil {
-					return nil, fmt.Errorf(
-						"failed to convert %s variable to booleans: %w",
-						*ev.Variable, err,
-					)
-				}
-
-				results[index] = bVal
-			}
-
-			return results, nil
+			return parseBoolSliceFromStringWithErrorPrefix(
+				value,
+				fmt.Sprintf("failed to parse %s: ", *ev.Variable),
+			)
 		}
 	}
 

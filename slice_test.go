@@ -208,7 +208,7 @@ func TestEnvIntSlice(t *testing.T) {
 		},
 		{
 			Input:    NewEnvIntSliceVariable("INVALID_INT_SLICE"),
-			ErrorMsg: "failed to convert INVALID_INT_SLICE variable to integers",
+			ErrorMsg: "ParseEnvFailed: failed to parse INVALID_INT_SLICE: invalid integer slice syntax. Hint: 1",
 		},
 	}
 
@@ -274,7 +274,7 @@ func TestEnvIntSlice_GetCustom(t *testing.T) {
 			Name:     "invalid int format",
 			Input:    NewEnvIntSliceVariable("INVALID_VAR"),
 			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_VAR": "1,abc,3"}, false),
-			ErrorMsg: "failed to convert INVALID_VAR variable to integers",
+			ErrorMsg: "failed to parse INVALID_VAR: invalid integer slice syntax. Hint: 1",
 		},
 		{
 			Name:     "missing variable no fallback",
@@ -379,7 +379,7 @@ func TestEnvFloatSlice(t *testing.T) {
 		},
 		{
 			Input:    NewEnvFloatSliceVariable("INVALID_FLOAT_SLICE"),
-			ErrorMsg: "failed to convert INVALID_FLOAT_SLICE variable to integers",
+			ErrorMsg: "ParseEnvFailed: failed to parse INVALID_FLOAT_SLICE: invalid floating-point number slice syntax. Hint: 1",
 		},
 	}
 
@@ -445,7 +445,7 @@ func TestEnvFloatSlice_GetCustom(t *testing.T) {
 			Name:     "invalid float format",
 			Input:    NewEnvFloatSliceVariable("INVALID_VAR"),
 			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_VAR": "1.5,abc,3.5"}, false),
-			ErrorMsg: "failed to convert INVALID_VAR variable to integers",
+			ErrorMsg: "ParseEnvFailed: failed to parse INVALID_VAR: invalid floating-point number slice syntax. Hint: 1",
 		},
 		{
 			Name:     "missing variable no fallback",
@@ -550,7 +550,7 @@ func TestEnvBoolSlice(t *testing.T) {
 		},
 		{
 			Input:    NewEnvBoolSliceVariable("INVALID_BOOL_SLICE"),
-			ErrorMsg: "failed to convert INVALID_BOOL_SLICE variable to integers",
+			ErrorMsg: "ParseEnvFailed: failed to parse INVALID_BOOL_SLICE: invalid boolean slice syntax. Hint: 1",
 		},
 	}
 
@@ -616,7 +616,7 @@ func TestEnvBoolSlice_GetCustom(t *testing.T) {
 			Name:     "invalid bool format",
 			Input:    NewEnvBoolSliceVariable("INVALID_VAR"),
 			GetFunc:  mockGetEnvFunc(map[string]string{"INVALID_VAR": "true,invalid,false"}, false),
-			ErrorMsg: "failed to convert INVALID_VAR variable to integers",
+			ErrorMsg: "ParseEnvFailed: failed to parse INVALID_VAR: invalid boolean slice syntax. Hint: 1",
 		},
 		{
 			Name:     "missing variable no fallback",

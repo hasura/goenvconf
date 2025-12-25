@@ -23,17 +23,17 @@ func TestParseIntMapFromString(t *testing.T) {
 		},
 		{
 			Input:    "a;b=2",
-			ErrorMsg: "ParseStringFailed: invalid int map from string, expected: <key1>=<value1>;<key2>=<value2>, got: a;b=2",
+			ErrorMsg: "ParseEnvFailed: invalid string map syntax, expected: <key1>=<value1>;<key2>=<value2>. Hint: a",
 		},
 		{
 			Input:    "a=c;b=2",
-			ErrorMsg: "invalid integer value c in item a",
+			ErrorMsg: "ParseEnvFailed: invalid integer map syntax. Hint: a",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.Input, func(t *testing.T) {
-			result, err := ParseIntMapFromString(tc.Input)
+			result, err := ParseIntegerMapFromString[int](tc.Input)
 			if tc.ErrorMsg != "" {
 				assertErrorContains(t, err, tc.ErrorMsg)
 			} else {

@@ -6,6 +6,7 @@ linters:
     - exhaustruct
     - wrapcheck
     - wsl
+    - tagalign
   settings:
     lll:
       # Max line length, lines longer will be reported.
@@ -15,17 +16,6 @@ linters:
       # Tab width in spaces.
       # Default: 1
       tab-width: 1
-    tagliatelle:
-      # Checks the struct tag name case.
-      case:
-        rules:
-          json: snake
-          yaml: snake
-          mapstructure: snake
-          whatever: snake
-    recvcheck:
-      exclusions:
-        - "*.UnmarshalJSON"
     wsl_v5:
       allow-first-in-block: true
       allow-whole-block: false
