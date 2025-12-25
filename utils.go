@@ -53,12 +53,12 @@ func ParseIntegerMapFromString[T int | int8 | int16 | int32 | int64 | uint | uin
 	result := make(map[string]T)
 
 	for key, value := range rawValues {
-		intValue, err := strconv.ParseInt(value, 10, 64)
+		intValue, err := parseInt[T](value)
 		if err != nil {
 			return nil, NewParseEnvFailedError("invalid integer map syntax", key)
 		}
 
-		result[key] = T(intValue)
+		result[key] = intValue
 	}
 
 	return result, nil
@@ -76,12 +76,12 @@ func ParseFloatMapFromString[T float32 | float64](input string) (map[string]T, e
 	result := make(map[string]T)
 
 	for key, value := range rawValues {
-		floatValue, err := strconv.ParseFloat(value, 64)
+		floatValue, err := parseFloat[T](value)
 		if err != nil {
 			return nil, NewParseEnvFailedError("invalid float map syntax", key)
 		}
 
-		result[key] = T(floatValue)
+		result[key] = floatValue
 	}
 
 	return result, nil
@@ -133,7 +133,7 @@ func parseIntSliceFromStringWithErrorPrefix[T int | int8 | int16 | int32 | int64
 	results := make([]T, len(rawValues))
 
 	for index, val := range rawValues {
-		intVal, err := strconv.ParseInt(strings.TrimSpace(val), 10, 64)
+		intVal, err := parseInt[T](val)
 		if err != nil {
 			return nil, NewParseEnvFailedError(
 				errorPrefix+"invalid integer slice syntax",
@@ -141,7 +141,7 @@ func parseIntSliceFromStringWithErrorPrefix[T int | int8 | int16 | int32 | int64
 			)
 		}
 
-		results[index] = T(intVal)
+		results[index] = intVal
 	}
 
 	return results, nil
@@ -160,7 +160,7 @@ func parseFloatSliceFromStringWithErrorPrefix[T float32 | float64](
 	results := make([]T, len(rawValues))
 
 	for index, val := range rawValues {
-		floatVal, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+		floatVal, err := parseFloat[T](val)
 		if err != nil {
 			return nil, NewParseEnvFailedError(
 				errorPrefix+"invalid floating-point number slice syntax",
@@ -168,7 +168,7 @@ func parseFloatSliceFromStringWithErrorPrefix[T float32 | float64](
 			)
 		}
 
-		results[index] = T(floatVal)
+		results[index] = floatVal
 	}
 
 	return results, nil
@@ -219,4 +219,87 @@ func getEnvVariableValueRequiredError(envName *string) error {
 	}
 
 	return ErrEnvironmentVariableValueRequired
+}
+
+func parseInt[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64]( //nolint:cyclop,ireturn
+	val string,
+) (T, error) {
+	var zero T
+
+	trimmed := strings.TrimSpace(val)
+
+	switch any(zero).(type) {
+	case int, int8, int16, int32:
+		result, err := strconv.Atoi(trimmed)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(result), nil
+	case uint:
+		uintVal, err := strconv.ParseUint(trimmed, 10, strconv.IntSize)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(uintVal), err
+	case uint8:
+		uintVal, err := strconv.ParseUint(trimmed, 10, 8)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(uintVal), err
+	case uint16:
+		uintVal, err := strconv.ParseUint(trimmed, 10, 16)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(uintVal), err
+	case uint32:
+		uintVal, err := strconv.ParseUint(trimmed, 10, 32)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(uintVal), err
+	case uint64:
+		uintVal, err := strconv.ParseUint(trimmed, 10, 64)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(uintVal), err
+	default:
+		intVal, err := strconv.ParseInt(trimmed, 10, 64)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(intVal), err
+	}
+}
+
+func parseFloat[T float32 | float64](val string) (T, error) { //nolint:ireturn
+	var zero T
+
+	trimmed := strings.TrimSpace(val)
+
+	switch any(zero).(type) {
+	case float32:
+		result, err := strconv.ParseFloat(trimmed, 32)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(result), nil
+	default:
+		result, err := strconv.ParseFloat(trimmed, 64)
+		if err != nil {
+			return zero, err
+		}
+
+		return T(result), err
+	}
 }
