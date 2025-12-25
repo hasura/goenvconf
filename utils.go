@@ -115,6 +115,7 @@ func ParseStringSliceFromString(input string) []string {
 	if input == "" {
 		return []string{}
 	}
+
 	return strings.Split(input, ",")
 }
 
