@@ -34,22 +34,6 @@ func NewEnvAnyVariable(name string) EnvAny {
 	}
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (ev *EnvAny) UnmarshalJSON(b []byte) error {
-	type Plain EnvAny
-
-	var rawValue Plain
-
-	err := json.Unmarshal(b, &rawValue)
-	if err != nil {
-		return err
-	}
-
-	*ev = EnvAny(rawValue)
-
-	return nil
-}
-
 // IsZero checks if the instance is empty.
 func (ev EnvAny) IsZero() bool {
 	return (ev.Variable == nil || *ev.Variable == "") &&
