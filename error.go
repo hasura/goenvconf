@@ -9,7 +9,7 @@ var (
 		Detail: "require either value or env",
 	}
 
-	// ErrEnvironmentVariableValueRequired the error occurs when the value from environment variable is empty.
+	// ErrEnvironmentVariableValueRequired the error that occurs when the value from environment variable is empty.
 	ErrEnvironmentVariableValueRequired = ParseEnvError{
 		Code:   "EmptyVar",
 		Detail: "the environment variable value is empty",

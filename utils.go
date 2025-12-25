@@ -112,6 +112,9 @@ func ParseBoolMapFromString(input string) (map[string]bool, error) {
 
 // ParseStringSliceFromString parses a string slice from a comma-separated string.
 func ParseStringSliceFromString(input string) []string {
+	if input == "" {
+		return []string{}
+	}
 	return strings.Split(input, ",")
 }
 
