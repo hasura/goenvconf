@@ -13,7 +13,7 @@ type GetEnvFunc func(string) (string, error)
 // EnvString represents either a literal string or an environment reference.
 type EnvString struct {
 	Value    *string `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"                                                                                           mapstructure:"env"   yaml:"env,omitempty"   hema:"anyof_required=env,description=Environment variable to be evaluated"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvString creates an EnvString instance.
@@ -120,7 +120,7 @@ func (ev EnvString) GetCustom(getFunc GetEnvFunc) (string, error) {
 // EnvInt represents either a literal integer or an environment reference.
 type EnvInt struct {
 	Value    *int64  `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"                                                                                           mapstructure:"env"   yaml:"env,omitempty"   hema:"anyof_required=env,description=Environment variable to be evaluated"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvInt creates an EnvInt instance.
@@ -224,7 +224,7 @@ func (ev EnvInt) GetCustom(getFunc GetEnvFunc) (int64, error) {
 // EnvBool represents either a literal boolean or an environment reference.
 type EnvBool struct {
 	Value    *bool   `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"                                                                                           mapstructure:"env"   yaml:"env,omitempty"   hema:"anyof_required=env,description=Environment variable to be evaluated"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvBool creates an EnvBool instance.
@@ -328,7 +328,7 @@ func (ev EnvBool) GetCustom(getFunc GetEnvFunc) (bool, error) {
 // EnvFloat represents either a literal floating point number or an environment reference.
 type EnvFloat struct {
 	Value    *float64 `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string  `json:"env,omitempty"                                                                                           mapstructure:"env"   yaml:"env,omitempty"   hema:"anyof_required=env,description=Environment variable to be evaluated"`
+	Variable *string  `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvFloat creates an EnvFloat instance.
