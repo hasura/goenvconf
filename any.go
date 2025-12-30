@@ -8,8 +8,8 @@ import (
 
 // EnvAny represents either arbitrary value or an environment reference.
 type EnvAny struct {
-	Value    any     `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
+	Value    any     `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvAny creates an EnvAny instance.
