@@ -8,8 +8,8 @@ import (
 
 // EnvStringSlice represents either a literal string slice or an environment reference.
 type EnvStringSlice struct {
-	Value    []string `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string  `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
+	Value    []string `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
+	Variable *string  `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvStringSlice creates an EnvStringSlice instance.
@@ -105,8 +105,8 @@ func (ev EnvStringSlice) GetCustom(getFunc GetEnvFunc) ([]string, error) {
 
 // EnvIntSlice represents either a literal integer slice or an environment reference.
 type EnvIntSlice struct {
-	Value    []int64 `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
+	Value    []int64 `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvIntSlice creates an EnvIntSlice instance.
@@ -208,8 +208,8 @@ func (ev EnvIntSlice) GetCustom(getFunc GetEnvFunc) ([]int64, error) {
 
 // EnvFloatSlice represents either a literal floating-point number slice or an environment reference.
 type EnvFloatSlice struct {
-	Value    []float64 `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string   `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
+	Value    []float64 `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
+	Variable *string   `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvFloatSlice creates an EnvFloatSlice instance.
@@ -311,8 +311,8 @@ func (ev EnvFloatSlice) GetCustom(getFunc GetEnvFunc) ([]float64, error) {
 
 // EnvBoolSlice represents either a literal boolean slice or an environment reference.
 type EnvBoolSlice struct {
-	Value    []bool  `json:"value,omitempty" jsonschema:"anyof_required=value" mapstructure:"value" yaml:"value,omitempty"`
-	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env"   mapstructure:"env"   yaml:"env,omitempty"`
+	Value    []bool  `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
+	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
 // NewEnvBoolSlice creates an EnvBoolSlice instance.

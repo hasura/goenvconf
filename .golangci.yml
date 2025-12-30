@@ -3,6 +3,7 @@ version: "2"
 linters:
   default: all
   disable:
+    - lll
     - exhaustruct
     - wrapcheck
     - wsl
@@ -53,7 +54,9 @@ formatters:
     - goimports
     - golines
   # Formatters settings.
-  settings: {}
+  settings:
+    golines:
+      reformat-tags: false
   exclusions:
     # Mode of the generated files analysis.
     #
