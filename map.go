@@ -1,6 +1,7 @@
 package goenvconf
 
 import (
+	"errors"
 	"maps"
 	"os"
 )
@@ -67,7 +68,7 @@ func (ev EnvMapString) Get() (map[string]string, error) {
 func (ev EnvMapString) GetCustom(getFunc GetEnvFunc) (map[string]string, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -141,7 +142,7 @@ func (ev EnvMapInt) Get() (map[string]int64, error) {
 func (ev EnvMapInt) GetCustom(getFunc GetEnvFunc) (map[string]int64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -215,7 +216,7 @@ func (ev EnvMapFloat) Get() (map[string]float64, error) {
 func (ev EnvMapFloat) GetCustom(getFunc GetEnvFunc) (map[string]float64, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -289,7 +290,7 @@ func (ev EnvMapBool) Get() (map[string]bool, error) {
 func (ev EnvMapBool) GetCustom(getFunc GetEnvFunc) (map[string]bool, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 

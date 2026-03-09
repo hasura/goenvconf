@@ -107,7 +107,14 @@ func (ev EnvString) GetCustom(getFunc GetEnvFunc) (string, error) {
 	}
 
 	if ev.Variable != nil && *ev.Variable != "" {
-		return getFunc(*ev.Variable)
+		value, err := getFunc(*ev.Variable)
+		if err == nil {
+			return value, nil
+		}
+
+		if !errors.Is(err, ErrEnvironmentVariableValueRequired) {
+			return "", err
+		}
 	}
 
 	if ev.Value != nil {
@@ -205,7 +212,7 @@ func (ev EnvInt) GetCustom(getFunc GetEnvFunc) (int64, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return 0, err
 		}
 
@@ -309,7 +316,7 @@ func (ev EnvBool) GetCustom(getFunc GetEnvFunc) (bool, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return false, err
 		}
 
@@ -413,7 +420,7 @@ func (ev EnvFloat) GetCustom(getFunc GetEnvFunc) (float64, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return 0, err
 		}
 

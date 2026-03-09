@@ -1,6 +1,7 @@
 package goenvconf
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"slices"
@@ -87,7 +88,7 @@ func (ev EnvStringSlice) GetCustom(getFunc GetEnvFunc) ([]string, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -187,7 +188,7 @@ func (ev EnvIntSlice) GetCustom(getFunc GetEnvFunc) ([]int64, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -290,7 +291,7 @@ func (ev EnvFloatSlice) GetCustom(getFunc GetEnvFunc) ([]float64, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
@@ -393,7 +394,7 @@ func (ev EnvBoolSlice) GetCustom(getFunc GetEnvFunc) ([]bool, error) {
 
 	if ev.Variable != nil && *ev.Variable != "" {
 		value, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
