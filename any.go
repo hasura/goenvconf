@@ -2,6 +2,7 @@ package goenvconf
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"reflect"
 )
@@ -60,7 +61,7 @@ func (ev EnvAny) Get() (any, error) {
 func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
 			return nil, err
 		}
 
