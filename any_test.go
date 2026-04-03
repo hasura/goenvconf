@@ -109,7 +109,7 @@ func TestEnvAny_GetCustom(t *testing.T) {
 			Expected: map[string]any{"key": "value"},
 		},
 		{
-			Name:     "variable_from_custom_func_string",
+			Name:     "variable_from_custom_func_string_quotes",
 			Input:    NewEnvAnyVariable("CUSTOM_VAR"),
 			GetFunc:  mockGetEnvFuncForAny(map[string]string{"CUSTOM_VAR": `"test_string"`}, false),
 			Expected: "test_string",

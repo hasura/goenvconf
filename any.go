@@ -85,6 +85,13 @@ func (ev EnvAny) Equal(target EnvAny) bool {
 
 func decodeAny(value string) (any, error) {
 	trimmedValue := strings.TrimSpace(value)
+	if trimmedValue == "" {
+		return value, nil
+	}
+
+	if trimmedValue == "null" {
+		return nil, nil //nolint:nilnil
+	}
 
 	if trimmedValue[0] == '"' || trimmedValue[0] == '{' || trimmedValue[0] == '[' {
 		var result any
@@ -109,8 +116,8 @@ func decodeAny(value string) (any, error) {
 	}
 
 	if isFloat {
-		return strconv.ParseFloat(value, 64)
+		return strconv.ParseFloat(trimmedValue, 64)
 	}
 
-	return strconv.ParseInt(value, 10, 64)
+	return strconv.ParseInt(trimmedValue, 10, 64)
 }
