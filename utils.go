@@ -304,3 +304,39 @@ func parseFloat[T float32 | float64](val string) (T, error) { //nolint:ireturn
 		return T(result), err
 	}
 }
+
+func isNumberString(value string) (bool, bool) { //nolint:cyclop
+	numberIndex := -1
+	isFloat := false
+
+	if value[0] >= '0' && value[0] <= '9' {
+		numberIndex = 1
+	} else if len(value) > 1 &&
+		(value[0] == '+' || value[0] == '-') &&
+		value[1] >= '0' && value[1] <= '9' {
+		numberIndex = 2
+	}
+
+	if numberIndex < 0 {
+		return false, false
+	}
+
+	for ; numberIndex < len(value); numberIndex++ {
+		char := value[numberIndex]
+		if char == '.' {
+			if isFloat {
+				return false, false
+			}
+
+			isFloat = true
+
+			continue
+		}
+
+		if char < '0' || char > '9' {
+			return false, false
+		}
+	}
+
+	return true, isFloat
+}

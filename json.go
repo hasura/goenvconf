@@ -5,50 +5,52 @@ import (
 	"errors"
 	"os"
 	"reflect"
-	"strconv"
-	"strings"
 )
 
-// EnvAny represents either arbitrary value or an environment reference.
-type EnvAny struct {
+// EnvJSON represents either a JSON value or an environment reference.
+type EnvJSON struct {
 	Value    any     `json:"value,omitempty" jsonschema:"anyof_required=value,description=Default literal value if the env is empty" mapstructure:"value" yaml:"value,omitempty"`
 	Variable *string `json:"env,omitempty"   jsonschema:"anyof_required=env,description=Environment variable to be evaluated"        mapstructure:"env"   yaml:"env,omitempty"`
 }
 
-// NewEnvAny creates an EnvAny instance.
-func NewEnvAny(env string, value any) EnvAny {
-	return EnvAny{
+// NewEnvJSON creates an EnvJSON instance.
+func NewEnvJSON(env string, value any) EnvJSON {
+	return EnvJSON{
 		Variable: &env,
 		Value:    value,
 	}
 }
 
-// NewEnvAnyValue creates an EnvAny with a literal value.
-func NewEnvAnyValue(value any) EnvAny {
-	return EnvAny{
+// NewEnvJSONValue creates an EnvJSON with a literal value.
+func NewEnvJSONValue(value any) EnvJSON {
+	return EnvJSON{
 		Value: value,
 	}
 }
 
-// NewEnvAnyVariable creates an EnvAny with a variable name.
-func NewEnvAnyVariable(name string) EnvAny {
-	return EnvAny{
+// NewEnvJSONVariable creates an EnvJSON with a variable name.
+func NewEnvJSONVariable(name string) EnvJSON {
+	return EnvJSON{
 		Variable: &name,
 	}
 }
 
 // IsZero checks if the instance is empty.
-func (ev EnvAny) IsZero() bool {
+func (ev EnvJSON) IsZero() bool {
 	return (ev.Variable == nil || *ev.Variable == "") &&
 		ev.Value == nil
 }
 
 // Get gets literal value or from system environment.
-func (ev EnvAny) Get() (any, error) {
+func (ev EnvJSON) Get() (any, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue := os.Getenv(*ev.Variable)
 		if rawValue != "" {
-			return decodeAny(rawValue)
+			var result any
+
+			err := json.Unmarshal([]byte(rawValue), &result)
+
+			return result, err
 		}
 	}
 
@@ -56,7 +58,7 @@ func (ev EnvAny) Get() (any, error) {
 }
 
 // GetCustom gets literal value or from system environment by a custom function.
-func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
+func (ev EnvJSON) GetCustom(getFunc GetEnvFunc) (any, error) {
 	if ev.Variable != nil && *ev.Variable != "" {
 		rawValue, err := getFunc(*ev.Variable)
 		if err != nil && !errors.Is(err, ErrEnvironmentVariableValueRequired) {
@@ -64,7 +66,11 @@ func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
 		}
 
 		if rawValue != "" {
-			return decodeAny(rawValue)
+			var result any
+
+			err := json.Unmarshal([]byte(rawValue), &result)
+
+			return result, err
 		}
 	}
 
@@ -72,7 +78,7 @@ func (ev EnvAny) GetCustom(getFunc GetEnvFunc) (any, error) {
 }
 
 // Equal checks if this instance equals the target value.
-func (ev EnvAny) Equal(target EnvAny) bool {
+func (ev EnvJSON) Equal(target EnvJSON) bool {
 	isSameValue := (ev.Value == nil && target.Value == nil) ||
 		(ev.Value != nil && target.Value != nil && reflect.DeepEqual(ev.Value, target.Value))
 	if !isSameValue {
@@ -81,36 +87,4 @@ func (ev EnvAny) Equal(target EnvAny) bool {
 
 	return (ev.Variable == nil && target.Variable == nil) ||
 		(ev.Variable != nil && target.Variable != nil && *ev.Variable == *target.Variable)
-}
-
-func decodeAny(value string) (any, error) {
-	trimmedValue := strings.TrimSpace(value)
-
-	if trimmedValue[0] == '"' || trimmedValue[0] == '{' || trimmedValue[0] == '[' {
-		var result any
-
-		err := json.Unmarshal([]byte(trimmedValue), &result)
-
-		return result, err
-	}
-
-	if trimmedValue == "true" {
-		return true, nil
-	}
-
-	if trimmedValue == "false" {
-		return false, nil
-	}
-
-	// validate if the value is a number.
-	isNumber, isFloat := isNumberString(trimmedValue)
-	if !isNumber {
-		return value, nil
-	}
-
-	if isFloat {
-		return strconv.ParseFloat(value, 64)
-	}
-
-	return strconv.ParseInt(value, 10, 64)
 }
